@@ -1,4 +1,4 @@
-import { async, TestBed, ComponentFixture } from "@angular/core/testing";
+import { async, ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { AppComponent } from "./../app.component";
 
@@ -20,7 +20,7 @@ describe("App Component", () => {
         expect(instance instanceof AppComponent).toBe(true, "should create AppComponent");
     });
 
-    it("sum should return four", () => {
+    it("sum should return five", () => {
         const expected = 5;
         const result = instance.sum(2, 3);
         expect(result).toBe(expected, "Unexpected Result");

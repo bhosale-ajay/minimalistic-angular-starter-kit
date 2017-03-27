@@ -12,46 +12,79 @@ module.exports = {
     },
 
     resolve: {
-        extensions: ['', '.ts', '.js'],
+        extensions: ['.ts', '.js'],
+    },
+
+    output: {
+        path: helpers.root('dist'),
+        publicPath: ''
     },
 
     module: {
-        loaders: [
+        rules: [
             {
                 test: /\.ts$/,
-                loaders: [
-                    'awesome-typescript-loader',
-                    'angular2-template-loader'
+                loaders: 
+                [
+                    'angular2-template-loader',
+                    {
+                        loader: 'awesome-typescript-loader',
+                        options: { configFileName: helpers.root('tsconfig.json') }
+                    }
                 ]
             },
             {
                 test: /\.html$/,
-                loader: 'html'
+                loader: 'html-loader'
             },
             {
                 test: /\.(png|jpe?g|gif|svg|woff|woff2|ttf|eot|ico)$/,
-                loader: 'file?name=/assets/[name].[hash].[ext]'
+                loader: 'file-loader?name=[name].[hash].[ext]&outputPath=static/assets/&publicPath=static/assets/'
             },
             {
-                test: /\.less$/,
+                test: /\.css$/,
                 exclude: helpers.root('app'),
-                loader: ExtractTextPlugin.extract('style', 'css-loader?sourcemap!less-loader?sourcemap')
+                loader: ExtractTextPlugin.extract({ 
+                    fallback: 'style-loader', 
+                    use: 'css-loader?sourceMap'
+                })
             },
             {
                 test: /\.css$/,
                 include: helpers.root('app'),
-                loader: 'raw'
+                loader: 'raw-loader'
+            },
+            {
+                test: /.*\.less$/,
+                exclude: helpers.root('app'),
+                loader: ExtractTextPlugin.extract({
+                    use:[ 'css-loader', 'less-loader' ],
+                    fallback: 'style-loader'
+                })
             }
         ]
     },
 
     plugins: [
-        new CleanWebpackPlugin(['static'], {
+        new CleanWebpackPlugin(['dist'], {
             root: helpers.root()
         }),
 
+        // Workaround for angular/angular#11580
+        new webpack.ContextReplacementPlugin(
+            // The (\\|\/) piece accounts for path separators in *nix and Windows
+            /angular(\\|\/)core(\\|\/)(esm(\\|\/)src|src)(\\|\/)linker/,
+            helpers.root(''), // location of your src
+            {} // a map of your routes
+        ),
+
         new webpack.optimize.CommonsChunkPlugin({
             name: ['app', 'vendor', 'polyfills']
+        }),
+
+        new HtmlWebpackPlugin({
+            template: 'index.html',
+
         }),
 
         new HtmlWebpackPlugin({

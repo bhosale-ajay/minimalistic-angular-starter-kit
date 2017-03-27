@@ -1,6 +1,8 @@
 .vscode
 node_modules
+dist
 static
 app/**/*.js
 app/**/*.js.map
 config/coverage
+*.log
